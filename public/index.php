@@ -38,7 +38,7 @@
 		//--------------------------------------------------
 		// Connection
 
-			private $db;
+			private mysqli $db;
 
 			public function __construct() {
 				$this->db = new mysqli('localhost', 'test', 'test', 'test');
@@ -49,7 +49,7 @@
 
 			/**
 			 * @param literal-string $sql
-			 * @param array<int, int|string> $parameters
+			 * @param list<int|string> $parameters
 			 * @param array<string, string> $aliases
 			 */
 			public function query(string $sql, array $parameters = [], array $aliases = []): void {
@@ -67,15 +67,32 @@
 				}
 
 				$statement = $this->db->prepare($sql);
-				$statement->execute($parameters);
 
-				$result = $statement->get_result();
+				if ($statement === false) {
 
-				while ($row = mysqli_fetch_assoc($result)) {
-					print_r($row);
+					echo 'Cannot Prepare SQL' . "\n";
+
+				} else {
+
+					$statement->execute($parameters);
+
+					$result = $statement->get_result();
+
+					if ($result === false) {
+
+						echo 'Cannot Get Results' . "\n";
+
+					} else {
+
+						while ($row = mysqli_fetch_assoc($result)) {
+							print_r($row);
+						}
+
+					}
+
+					echo "\n\n";
+
 				}
-
-				echo "\n\n";
 
 			}
 
@@ -207,7 +224,7 @@
 		ORDER BY
 			' . $order_by;
 
-	$db->query($sql);
+	$db->query($sql); // INSECURE
 
 
 	echo '-------------------------' . "\n\n";
